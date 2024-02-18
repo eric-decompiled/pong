@@ -30,9 +30,7 @@ const drawPaddles = () => {
 };
 
 const drawBall = () => {
-  ball.forEach(shape => {
-    shape.draw(c);
-  });
+  ball.draw(c);
 };
 
 const updatePaddles = () => {
@@ -40,7 +38,7 @@ const updatePaddles = () => {
 };
 
 const updateBall = () => {
-  ball.forEach(ball => ball.update());
+  ball.update();
 };
 
 const animate = () => {
