@@ -25,7 +25,7 @@ export class Ball {
 
     c.fillStyle = color;
     c.beginPath();
-    c.arc(x, y, radius, Math.PI * 2);
+    c.arc(x, y, radius, 0, Math.PI * 2, 1);
     c.fill();
   }
 

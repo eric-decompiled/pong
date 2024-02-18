@@ -10,7 +10,7 @@ if (!c) {
 }
 
 const paddles = [new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' })];
-const ball = [new Ball({ x: 100, y: 60, radius: 30, color: 'cyan' })];
+const ball = [new Ball({ x: 100, y: 60, radius: 12, color: 'yellow' })];
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -24,7 +24,9 @@ const drawPaddles = () => {
 };
 
 const drawBall = () => {
-  ball.draw(c);
+  ball.forEach(shape => {
+    shape.draw(c);
+  });
 };
 
 const updatePaddles = () => {
@@ -32,7 +34,7 @@ const updatePaddles = () => {
 };
 
 const updateBall = () => {
-  ball.update();
+  ball.forEach(ball => ball.update());
 };
 
 const animate = () => {
