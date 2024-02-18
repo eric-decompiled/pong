@@ -2,6 +2,12 @@ import './style.css';
 import { Paddle } from './js/paddle';
 
 const canvas = document.querySelector('#canvas');
+
+// normalizes canvas ratio to avoid pixelation
+const devicePixelRatio = window.devicePixelRatio || 1;
+canvas.width = 960 * devicePixelRatio;
+canvas.height = 540 * devicePixelRatio;
+
 const c = canvas.getContext('2d');
 
 if (!c) {
