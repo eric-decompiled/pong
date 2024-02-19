@@ -40,6 +40,14 @@ const updatePaddles = () => {
 };
 
 const updateBall = () => {
+  ball.x += ballSpeedHorizontal;
+  ball.y += ballSpeedVertical;
+  if (ball.x < ball.radius || ball.x > canvas.width / devicePixelRatio - ball.radius) {
+    ballSpeedHorizontal *= -1;
+  }
+  if (ball.y < ball.radius || ball.y > canvas.height / devicePixelRatio - ball.radius) {
+    ballSpeedVertical *= -1;
+  }
   ball.update();
 };
 
@@ -48,14 +56,6 @@ const animate = () => {
   drawPaddles();
   drawBall();
   updatePaddles();
-  ball.x += ballSpeedHorizontal;
-  ball.y += ballSpeedVertical;
-  if (ball.x < 10 || ball.x > 949) {
-    ballSpeedHorizontal *= -1;
-  }
-  if (ball.y < 10 || ball.y > 539) {
-    ballSpeedVertical *= -1;
-  }
   updateBall();
 
   requestAnimationFrame(animate);
