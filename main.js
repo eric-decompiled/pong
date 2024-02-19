@@ -17,6 +17,8 @@ if (!c) {
 
 const paddles = [new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' })];
 const ball = new Ball({ x: 100, y: 60, radius: 12, color: 'yellow' });
+let ballSpeedVertical = 1.5;
+let ballSpeedHorizontal = 1.5;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -46,6 +48,14 @@ const animate = () => {
   drawPaddles();
   drawBall();
   updatePaddles();
+  ball.x += ballSpeedHorizontal;
+  ball.y += ballSpeedVertical;
+  if (ball.x < 10 || ball.x > 949) {
+    ballSpeedHorizontal *= -1;
+  }
+  if (ball.y < 10 || ball.y > 539) {
+    ballSpeedVertical *= -1;
+  }
   updateBall();
 
   requestAnimationFrame(animate);
