@@ -42,13 +42,12 @@ const updatePaddles = () => {
 const updateBall = () => {
   ball.x += ballSpeedHorizontal;
   ball.y += ballSpeedVertical;
-  if (ball.x < ball.radius || ball.x > canvas.width / devicePixelRatio - ball.radius) {
+  if (ball.x < ball.radius || ball.x > canvas.width - ball.radius) {
     ballSpeedHorizontal *= -1;
   }
-  if (ball.y < ball.radius || ball.y > canvas.height / devicePixelRatio - ball.radius) {
+  if (ball.y < ball.radius || ball.y > canvas.height - ball.radius) {
     ballSpeedVertical *= -1;
   }
-  ball.update();
 };
 
 const animate = () => {
