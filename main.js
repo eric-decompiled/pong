@@ -15,10 +15,14 @@ if (!c) {
   throw new Error('canvas was not found');
 }
 
-const paddles = [new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' })];
+const paddleOne = new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' });
+const paddleTwo = new Paddle({ x: canvas.width - 30, y: 60, width: 20, height: 50, color: 'red' });
 const ball = new Ball({ x: 100, y: 60, radius: 12, color: 'yellow' });
 let ballSpeedVertical = 1.5;
 let ballSpeedHorizontal = 1.5;
+let paddleOneSpeed = 0;
+let paddleTwoSpeed = 0;
+let acceleration = 0.2;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -26,9 +30,8 @@ const drawBackground = () => {
 };
 
 const drawPaddles = () => {
-  paddles.forEach(shape => {
-    shape.draw(c);
-  });
+  paddleOne.draw(c);
+  paddleTwo.draw(c);
 };
 
 const drawBall = () => {
@@ -36,7 +39,24 @@ const drawBall = () => {
 };
 
 const updatePaddles = () => {
-  paddles.forEach(paddle => paddle.update());
+  paddleOneSpeed *= -0.1;
+  //paddleOne.update();
+  paddleTwoSpeed *= -0.1;
+  //paddleTwo.update();
+  paddleOne.y += paddleOneSpeed;
+  paddleTwo.y += paddleTwoSpeed;
+  if (paddleOne.y < 0) {
+    paddleOne.y = 0;
+  }
+  if (paddleOne.y > canvas.height - paddleOne.height) {
+    paddleOne.y = canvas.height - paddleOne.height;
+  }
+  if (paddleTwo.y < 0) {
+    paddleTwo.y = 0;
+  }
+  if (paddleTwo.y > canvas.height - paddleTwo.height) {
+    paddleTwo.y = canvas.height - paddleTwo.height;
+  }
 };
 
 const updateBall = () => {
@@ -50,13 +70,34 @@ const updateBall = () => {
   }
 };
 
+function checkInputs() {
+  addEventListener('keydown', function (key) {
+    console.log(key.code);
+    if (key.code === 'KeyW') {
+      if (paddleOneSpeed < 1) {
+        paddleOneSpeed = 1;
+      }
+      paddleOneSpeed += acceleration;
+    }
+    if (key.code === 'KeyS') {
+      paddleOneSpeed -= acceleration;
+    }
+    if (key.code === 'KeyI') {
+      paddleTwoSpeed += acceleration;
+    }
+    if (key.code === 'KeyK') {
+      paddleTwoSpeed -= acceleration;
+    }
+  });
+}
+
 const animate = () => {
   drawBackground();
   drawPaddles();
   drawBall();
   updatePaddles();
   updateBall();
-
+  checkInputs();
   requestAnimationFrame(animate);
 };
 
