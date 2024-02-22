@@ -23,7 +23,7 @@ let ballSpeedHorizontal = 1.5;
 let paddleOneSpeed = 0;
 let paddleTwoSpeed = 0;
 let acceleration = 0.2;
-let friction = 0.1;
+let friction = 0.01;
 let maxSpeed = 5;
 
 const drawBackground = () => {
@@ -42,6 +42,9 @@ const drawBall = () => {
 
 const updatePaddles = () => {
   console.log(paddleOneSpeed);
+
+  paddleOneSpeed -= paddleOneSpeed * friction;
+
   if (paddleOneSpeed > maxSpeed) {
     paddleOneSpeed = maxSpeed;
   }
@@ -54,10 +57,18 @@ const updatePaddles = () => {
   if (paddleTwoSpeed < -maxSpeed) {
     paddleTwoSpeed = -maxSpeed;
   }
-  paddleOneSpeed += -friction * paddleOneSpeed;
-  paddleTwoSpeed += -friction * paddleTwoSpeed;
+
+  if (Math.abs(paddleOneSpeed) < friction) {
+    paddleOneSpeed = 0;
+  }
+
+  if (Math.abs(paddleTwoSpeed) < friction) {
+    paddleTwoSpeed = 0;
+  }
+
   paddleOne.y += paddleOneSpeed;
   paddleTwo.y += paddleTwoSpeed;
+
   if (paddleOne.y < 0) {
     paddleOne.y = 0;
   }
@@ -83,31 +94,28 @@ const updateBall = () => {
   }
 };
 
-function registerInputHandler() {
-  addEventListener('keydown', function (key) {
-    if (key.code === 'KeyW') {
-      paddleOneSpeed -= acceleration + acceleration * paddleOneSpeed;
-    }
-    if (key.code === 'KeyS') {
-      paddleOneSpeed += acceleration - acceleration * paddleOneSpeed;
-    }
-    if (key.code === 'KeyI') {
-      paddleTwoSpeed -= acceleration;
-    }
-    if (key.code === 'KeyK') {
-      paddleTwoSpeed += acceleration;
-    }
-  });
-}
-
 const animate = () => {
   drawBackground();
   drawPaddles();
   drawBall();
   updatePaddles();
   updateBall();
-  registerInputHandler();
   requestAnimationFrame(animate);
 };
+
+addEventListener('keydown', function (key) {
+  if (key.code === 'KeyW') {
+    paddleOneSpeed -= acceleration;
+  }
+  if (key.code === 'KeyS') {
+    paddleOneSpeed += acceleration;
+  }
+  if (key.code === 'KeyI') {
+    paddleTwoSpeed -= acceleration;
+  }
+  if (key.code === 'KeyK') {
+    paddleTwoSpeed += acceleration;
+  }
+});
 
 animate();
