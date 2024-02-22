@@ -15,10 +15,16 @@ if (!c) {
   throw new Error('canvas was not found');
 }
 
-const paddles = [new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' })];
+const paddleOne = new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' });
+const paddleTwo = new Paddle({ x: canvas.width - 30, y: 60, width: 20, height: 50, color: 'red' });
 const ball = new Ball({ x: 100, y: 60, radius: 12, color: 'yellow' });
 let ballSpeedVertical = 1.5;
 let ballSpeedHorizontal = 1.5;
+let paddleOneSpeed = 0;
+let paddleTwoSpeed = 0;
+let acceleration = 0.2;
+let friction = 0.01;
+let maxSpeed = 5;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -26,9 +32,8 @@ const drawBackground = () => {
 };
 
 const drawPaddles = () => {
-  paddles.forEach(shape => {
-    shape.draw(c);
-  });
+  paddleOne.draw(c);
+  paddleTwo.draw(c);
 };
 
 const drawBall = () => {
@@ -36,7 +41,46 @@ const drawBall = () => {
 };
 
 const updatePaddles = () => {
-  paddles.forEach(paddle => paddle.update());
+  console.log(paddleOneSpeed);
+
+  paddleOneSpeed -= paddleOneSpeed * friction;
+
+  if (paddleOneSpeed > maxSpeed) {
+    paddleOneSpeed = maxSpeed;
+  }
+  if (paddleOneSpeed < -maxSpeed) {
+    paddleOneSpeed = -maxSpeed;
+  }
+  if (paddleTwoSpeed > maxSpeed) {
+    paddleTwoSpeed = maxSpeed;
+  }
+  if (paddleTwoSpeed < -maxSpeed) {
+    paddleTwoSpeed = -maxSpeed;
+  }
+
+  if (Math.abs(paddleOneSpeed) < friction) {
+    paddleOneSpeed = 0;
+  }
+
+  if (Math.abs(paddleTwoSpeed) < friction) {
+    paddleTwoSpeed = 0;
+  }
+
+  paddleOne.y += paddleOneSpeed;
+  paddleTwo.y += paddleTwoSpeed;
+
+  if (paddleOne.y < 0) {
+    paddleOne.y = 0;
+  }
+  if (paddleOne.y > canvas.height - paddleOne.height) {
+    paddleOne.y = canvas.height - paddleOne.height;
+  }
+  if (paddleTwo.y < 0) {
+    paddleTwo.y = 0;
+  }
+  if (paddleTwo.y > canvas.height - paddleTwo.height) {
+    paddleTwo.y = canvas.height - paddleTwo.height;
+  }
 };
 
 const updateBall = () => {
@@ -56,8 +100,22 @@ const animate = () => {
   drawBall();
   updatePaddles();
   updateBall();
-
   requestAnimationFrame(animate);
 };
+
+addEventListener('keydown', function (key) {
+  if (key.code === 'KeyW') {
+    paddleOneSpeed -= acceleration;
+  }
+  if (key.code === 'KeyS') {
+    paddleOneSpeed += acceleration;
+  }
+  if (key.code === 'KeyI') {
+    paddleTwoSpeed -= acceleration;
+  }
+  if (key.code === 'KeyK') {
+    paddleTwoSpeed += acceleration;
+  }
+});
 
 animate();
