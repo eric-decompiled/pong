@@ -24,7 +24,6 @@ let paddleOneSpeed = 0;
 let paddleTwoSpeed = 0;
 let acceleration = 0.2;
 let friction = 0.01;
-let maxSpeed = 5;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -41,22 +40,8 @@ const drawBall = () => {
 };
 
 const updatePaddles = () => {
-  console.log(paddleOneSpeed);
-
-  paddleOneSpeed -= paddleOneSpeed * friction;
-
-  if (paddleOneSpeed > maxSpeed) {
-    paddleOneSpeed = maxSpeed;
-  }
-  if (paddleOneSpeed < -maxSpeed) {
-    paddleOneSpeed = -maxSpeed;
-  }
-  if (paddleTwoSpeed > maxSpeed) {
-    paddleTwoSpeed = maxSpeed;
-  }
-  if (paddleTwoSpeed < -maxSpeed) {
-    paddleTwoSpeed = -maxSpeed;
-  }
+  paddleOneSpeed -= friction * paddleOneSpeed;
+  paddleTwoSpeed -= friction * paddleTwoSpeed;
 
   if (Math.abs(paddleOneSpeed) < friction) {
     paddleOneSpeed = 0;
@@ -71,15 +56,19 @@ const updatePaddles = () => {
 
   if (paddleOne.y < 0) {
     paddleOne.y = 0;
+    paddleOneSpeed *= -1;
   }
   if (paddleOne.y > canvas.height - paddleOne.height) {
     paddleOne.y = canvas.height - paddleOne.height;
+    paddleOneSpeed *= -1;
   }
   if (paddleTwo.y < 0) {
     paddleTwo.y = 0;
+    paddleTwoSpeed *= -1;
   }
   if (paddleTwo.y > canvas.height - paddleTwo.height) {
     paddleTwo.y = canvas.height - paddleTwo.height;
+    paddleTwoSpeed *= -1;
   }
 };
 
