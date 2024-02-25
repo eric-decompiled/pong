@@ -27,7 +27,10 @@ let paddleOneSpeed = 0;
 let paddleTwoSpeed = 0;
 let acceleration = 0.2;
 let friction = 0.01;
-let border = 10;
+let border = 5;
+let buffer = 50;
+let justHit = false;
+let evaporation = 5;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -92,43 +95,53 @@ const updatePaddles = () => {
 };
 
 const updateBall = () => {
+  if (justHit) {
+    if (ball.x < buffer) {
+      ballSpeedHorizontal = Math.abs(ballSpeedHorizontal);
+    } else if (ball.x + buffer > canvas.width) {
+      ballSpeedHorizontal = -1 * Math.abs(ballSpeedHorizontal);
+    } else {
+      justHit = false;
+    }
+  }
   ball.x += ballSpeedHorizontal;
   ball.y += ballSpeedVertical;
 
   //scoring
   if (ball.x - border < ball.radius) {
-    ballSpeedHorizontal *= -1 - Math.random() / 50;
-    paddleOne.height -= 5;
+    ballSpeedHorizontal = Math.abs(ballSpeedHorizontal + Math.random() / 50);
+    paddleTwo.height -= evaporation;
   }
   if (ball.x + border > canvas.width - ball.radius) {
-    ballSpeedHorizontal *= -1 - Math.random() / 50;
-    paddleTwo.height -= 5;
+    ballSpeedHorizontal = -1 * Math.abs(ballSpeedHorizontal + Math.random() / 50);
+    paddleOne.height -= evaporation;
   }
 
   //is the game over?
-  if (paddleOne.height === 0) {
-    alert('Player Two is the Winner!');
+  if (paddleOne.height <= 0) {
+    alert('Player Left is the Winner!  Click okay to replay!');
+    location.reload();
   }
-  if (paddleTwo.height === 0) {
-    alert('Player One is the Winner!');
-  }
-
-  if (ball.y - border < ball.radius || ball.y + border > canvas.height - ball.radius) {
-    ballSpeedVertical *= -1 - Math.random() / 50;
+  if (paddleTwo.height <= 0) {
+    alert('Player Right is the Winner!  Click okay to replay!');
+    location.reload;
   }
 
+  //check if ball is off the top and bottom
+  if (ball.y - border < ball.radius) {
+    ballSpeedVertical = Math.abs(ballSpeedVertical + Math.random() / 50);
+  }
+  if (ball.y + border > canvas.height - ball.radius) {
+    ballSpeedVertical = -1 * Math.abs(ballSpeedVertical + Math.random() / 50);
+  }
   // detect if ball is beyond right paddle
   if (ball.x + ball.radius > paddleTwo.x) {
     // detect if ball is within right paddle vertical space
     if (ball.y > paddleTwo.y && ball.y < paddleTwo.y + paddleTwo.height) {
-      ballSpeedHorizontal += paddleTwoSpeed;
-      if (ballSpeedVertical > 0) {
-        ballSpeedVertical += paddleTwoSpeed;
-      }
-      if (ballSpeedVertical < 0) {
-        ballSpeedVertical -= paddleTwoSpeed;
-      }
+      ballSpeedHorizontal *= 1.02;
+      ballSpeedVertical += paddleTwoSpeed;
       ballSpeedHorizontal *= -1;
+      justHit = true;
     }
   }
 
@@ -136,14 +149,10 @@ const updateBall = () => {
   if (ball.x - ball.radius < paddleOne.x + paddleOne.width) {
     // detect if ball is within left paddle vertical space
     if (ball.y > paddleOne.y && ball.y < paddleOne.y + paddleOne.height) {
-      ballSpeedHorizontal += paddleOneSpeed;
-      if (ballSpeedVertical > 0) {
-        ballSpeedVertical += paddleOneSpeed;
-      }
-      if (ballSpeedVertical < 0) {
-        ballSpeedVertical -= paddleOneSpeed;
-      }
+      ballSpeedHorizontal *= 1.02;
+      ballSpeedVertical += paddleOneSpeed;
       ballSpeedHorizontal *= -1;
+      justHit = true;
     }
   }
 };
