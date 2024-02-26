@@ -18,13 +18,20 @@ if (!c) {
 const paddleOne = new Paddle({ x: 10, y: 60, width: 20, height: 50, color: 'teal' });
 const paddleTwo = new Paddle({ x: canvas.width - 30, y: 60, width: 20, height: 50, color: 'red' });
 const ball = new Ball({ x: 100, y: 60, radius: 12, color: 'yellow' });
+const paddleOneControls = { up: false, down: false };
+const paddleTwoControls = { up: false, down: false };
+
 let ballSpeedVertical = 1.5;
 let ballSpeedHorizontal = 1.5;
+let ballSpeedMax = 10;
 let paddleOneSpeed = 0;
 let paddleTwoSpeed = 0;
 let acceleration = 0.2;
 let friction = 0.01;
-let maxSpeed = 5;
+let border = 5;
+let buffer = 50;
+let justHit = false;
+let evaporation = 5;
 
 const drawBackground = () => {
   c.fillStyle = '#000220'; // set background color
@@ -41,56 +48,118 @@ const drawBall = () => {
 };
 
 const updatePaddles = () => {
-  console.log(paddleOneSpeed);
+  paddleOneSpeed -= friction * paddleOneSpeed;
+  paddleTwoSpeed -= friction * paddleTwoSpeed;
 
-  paddleOneSpeed -= paddleOneSpeed * friction;
-
-  if (paddleOneSpeed > maxSpeed) {
-    paddleOneSpeed = maxSpeed;
-  }
-  if (paddleOneSpeed < -maxSpeed) {
-    paddleOneSpeed = -maxSpeed;
-  }
-  if (paddleTwoSpeed > maxSpeed) {
-    paddleTwoSpeed = maxSpeed;
-  }
-  if (paddleTwoSpeed < -maxSpeed) {
-    paddleTwoSpeed = -maxSpeed;
-  }
-
+  //if they are moving pretty slow, just stop them.
   if (Math.abs(paddleOneSpeed) < friction) {
     paddleOneSpeed = 0;
   }
-
   if (Math.abs(paddleTwoSpeed) < friction) {
     paddleTwoSpeed = 0;
+  }
+
+  //add intertia from keypresses
+  if (paddleOneControls.up) {
+    paddleOneSpeed -= acceleration;
+  }
+  if (paddleOneControls.down) {
+    paddleOneSpeed += acceleration;
+  }
+  if (paddleTwoControls.up) {
+    paddleTwoSpeed -= acceleration;
+  }
+  if (paddleTwoControls.down) {
+    paddleTwoSpeed += acceleration;
   }
 
   paddleOne.y += paddleOneSpeed;
   paddleTwo.y += paddleTwoSpeed;
 
+  //bounce off the top and bottom
   if (paddleOne.y < 0) {
     paddleOne.y = 0;
+    paddleOneSpeed *= -1;
   }
   if (paddleOne.y > canvas.height - paddleOne.height) {
     paddleOne.y = canvas.height - paddleOne.height;
+    paddleOneSpeed *= -1;
   }
   if (paddleTwo.y < 0) {
     paddleTwo.y = 0;
+    paddleTwoSpeed *= -1;
   }
   if (paddleTwo.y > canvas.height - paddleTwo.height) {
     paddleTwo.y = canvas.height - paddleTwo.height;
+    paddleTwoSpeed *= -1;
   }
 };
 
 const updateBall = () => {
+  if (ballSpeedHorizontal > ballSpeedMax) {
+    ballSpeedHorizontal = ballSpeedMax;
+  }
+  if (ballSpeedVertical > ballSpeedMax) {
+    ballSpeedVertical = ballSpeedMax;
+  }
+
+  if (justHit) {
+    if (ball.x < buffer) {
+      ballSpeedHorizontal = Math.abs(ballSpeedHorizontal);
+    } else if (ball.x + buffer > canvas.width) {
+      ballSpeedHorizontal = -1 * Math.abs(ballSpeedHorizontal);
+    } else {
+      justHit = false;
+    }
+  }
   ball.x += ballSpeedHorizontal;
   ball.y += ballSpeedVertical;
-  if (ball.x < ball.radius || ball.x > canvas.width - ball.radius) {
-    ballSpeedHorizontal *= -1;
+
+  //scoring
+  if (ball.x - border < ball.radius) {
+    ballSpeedHorizontal = Math.abs(ballSpeedHorizontal + Math.random() / 50);
+    paddleTwo.height -= evaporation;
   }
-  if (ball.y < ball.radius || ball.y > canvas.height - ball.radius) {
-    ballSpeedVertical *= -1;
+  if (ball.x + border > canvas.width - ball.radius) {
+    ballSpeedHorizontal = -1 * Math.abs(ballSpeedHorizontal + Math.random() / 50);
+    paddleOne.height -= evaporation;
+  }
+
+  //is the game over?
+  if (paddleOne.height <= 0) {
+    alert('Player Left is the Winner!  Click okay to replay!');
+    location.reload();
+  }
+  if (paddleTwo.height <= 0) {
+    alert('Player Right is the Winner!  Click okay to replay!');
+    location.reload();
+  }
+
+  //check if ball is off the top and bottom
+  if (ball.y - border < ball.radius) {
+    ballSpeedVertical = Math.abs(ballSpeedVertical + Math.random() / 50);
+  }
+  if (ball.y + border > canvas.height - ball.radius) {
+    ballSpeedVertical = -1 * Math.abs(ballSpeedVertical + Math.random() / 50);
+  }
+  // detect if ball is beyond right paddle
+  if (ball.x + ball.radius > paddleTwo.x) {
+    // detect if ball is within right paddle vertical space
+    if (ball.y > paddleTwo.y && ball.y < paddleTwo.y + paddleTwo.height) {
+      justHit = true;
+      ballSpeedHorizontal = -1.02 * Math.abs(ballSpeedHorizontal);
+      ballSpeedVertical += paddleTwoSpeed;
+    }
+  }
+
+  // detect if ball is beyond left paddle
+  if (ball.x - ball.radius < paddleOne.x + paddleOne.width) {
+    // detect if ball is within left paddle vertical space
+    if (ball.y > paddleOne.y && ball.y < paddleOne.y + paddleOne.height) {
+      justHit = true;
+      ballSpeedHorizontal = 1.02 * Math.abs(ballSpeedHorizontal);
+      ballSpeedVertical += paddleOneSpeed;
+    }
   }
 };
 
@@ -105,16 +174,31 @@ const animate = () => {
 
 addEventListener('keydown', function (key) {
   if (key.code === 'KeyW') {
-    paddleOneSpeed -= acceleration;
+    paddleOneControls.up = true;
   }
   if (key.code === 'KeyS') {
-    paddleOneSpeed += acceleration;
+    paddleOneControls.down = true;
   }
   if (key.code === 'KeyI') {
-    paddleTwoSpeed -= acceleration;
+    paddleTwoControls.up = true;
   }
   if (key.code === 'KeyK') {
-    paddleTwoSpeed += acceleration;
+    paddleTwoControls.down = true;
+  }
+});
+
+addEventListener('keyup', function (key) {
+  if (key.code === 'KeyW') {
+    paddleOneControls.up = false;
+  }
+  if (key.code === 'KeyS') {
+    paddleOneControls.down = false;
+  }
+  if (key.code === 'KeyI') {
+    paddleTwoControls.up = false;
+  }
+  if (key.code === 'KeyK') {
+    paddleTwoControls.down = false;
   }
 });
 
