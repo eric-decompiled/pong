@@ -23,6 +23,7 @@ const paddleTwoControls = { up: false, down: false };
 
 let ballSpeedVertical = 1.5;
 let ballSpeedHorizontal = 1.5;
+let ballSpeedMax = 10;
 let paddleOneSpeed = 0;
 let paddleTwoSpeed = 0;
 let acceleration = 0.2;
@@ -95,6 +96,13 @@ const updatePaddles = () => {
 };
 
 const updateBall = () => {
+  if (ballSpeedHorizontal > ballSpeedMax) {
+    ballSpeedHorizontal = ballSpeedMax;
+  }
+  if (ballSpeedVertical > ballSpeedMax) {
+    ballSpeedVertical = ballSpeedMax;
+  }
+
   if (justHit) {
     if (ball.x < buffer) {
       ballSpeedHorizontal = Math.abs(ballSpeedHorizontal);
@@ -124,7 +132,7 @@ const updateBall = () => {
   }
   if (paddleTwo.height <= 0) {
     alert('Player Right is the Winner!  Click okay to replay!');
-    location.reload;
+    location.reload();
   }
 
   //check if ball is off the top and bottom
@@ -138,10 +146,9 @@ const updateBall = () => {
   if (ball.x + ball.radius > paddleTwo.x) {
     // detect if ball is within right paddle vertical space
     if (ball.y > paddleTwo.y && ball.y < paddleTwo.y + paddleTwo.height) {
-      ballSpeedHorizontal *= 1.02;
-      ballSpeedVertical += paddleTwoSpeed;
-      ballSpeedHorizontal *= -1;
       justHit = true;
+      ballSpeedHorizontal = -1.02 * Math.abs(ballSpeedHorizontal);
+      ballSpeedVertical += paddleTwoSpeed;
     }
   }
 
@@ -149,10 +156,9 @@ const updateBall = () => {
   if (ball.x - ball.radius < paddleOne.x + paddleOne.width) {
     // detect if ball is within left paddle vertical space
     if (ball.y > paddleOne.y && ball.y < paddleOne.y + paddleOne.height) {
-      ballSpeedHorizontal *= 1.02;
-      ballSpeedVertical += paddleOneSpeed;
-      ballSpeedHorizontal *= -1;
       justHit = true;
+      ballSpeedHorizontal = 1.02 * Math.abs(ballSpeedHorizontal);
+      ballSpeedVertical += paddleOneSpeed;
     }
   }
 };
